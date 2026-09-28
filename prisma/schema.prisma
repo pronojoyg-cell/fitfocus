@@ -1,0 +1,104 @@
+// This is your Prisma schema file for FitnessWellnessApp
+// Production PostgreSQL / Supabase configuration with strict cascading deletes and user indexes.
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  RATHER_NOT_SAY
+}
+
+enum GoalType {
+  MANAGE_WEIGHT
+  MANAGE_HEALTH_PROBLEM
+  STAY_FIT
+}
+
+enum SubGoalType {
+  WEIGHT_LOSS
+  WEIGHT_GAIN
+  MAINTAIN
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHTLY_ACTIVE
+  MODERATELY_ACTIVE
+  VERY_ACTIVE
+  EXTRA_ACTIVE
+}
+
+model User {
+  id            String         @id @default(uuid()) @db.Uuid
+  auth_id       String         @unique // Maps to Supabase auth.users.id
+  email         String?        @unique
+  name          String
+  age           Int
+  gender        Gender
+  date_of_birth DateTime?      @db.Date
+  created_at    DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime       @updatedAt @db.Timestamptz(6)
+
+  // Strict 1-to-1 cascading relationship with health metrics
+  health_metrics HealthMetrics?
+
+  // Strict 1-to-many cascading relationship with food logs
+  food_logs      FoodLog[]
+
+  @@index([auth_id])
+  @@map("users")
+}
+
+model HealthMetrics {
+  id              String         @id @default(uuid()) @db.Uuid
+  user_id         String         @unique @db.Uuid
+  goal            GoalType
+  sub_goal        SubGoalType?
+  height_cm       Decimal        @db.Decimal(5, 2)
+  weight_kg       Decimal        @db.Decimal(5, 2)
+  activity_level  ActivityLevel
+  bmr_calories    Int
+  target_calories Int
+  protein_g       Int
+  carbs_g         Int
+  fats_g          Int
+  created_at      DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime       @updatedAt @db.Timestamptz(6)
+
+  // Relation with strict cascade deletion
+  user            User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("health_metrics")
+}
+
+model FoodLog {
+  id               String   @id @default(uuid()) @db.Uuid
+  user_id          String   @db.Uuid
+  food_name        String
+  image_url        String?  @db.Text
+  calories         Int
+  protein_g        Decimal  @db.Decimal(6, 2)
+  carbs_g          Decimal  @db.Decimal(6, 2)
+  fats_g           Decimal  @db.Decimal(6, 2)
+  meal_type        String   @default("meal") // breakfast, lunch, dinner, snack
+  ai_analysis_json Json     // Strict schema: { food_name, calories, protein_g, carbs_g, fats_g, key_micros }
+  consumed_at      DateTime @default(now()) @db.Timestamptz(6)
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relation with strict cascade deletion
+  user             User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([consumed_at])
+  @@map("food_logs")
+}

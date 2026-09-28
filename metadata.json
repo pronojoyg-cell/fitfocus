@@ -1,0 +1,6 @@
+{
+  "name": "FitnessWellnessApp",
+  "description": "Clinical-grade fitness and nutrition tracker with progressive onboarding, Mifflin-St. Jeor TDEE macro engine, circular calorie rings, and AI vision food logging.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with biometrics and clinical targets",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "auth_id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "avatar_url": { "type": "string", "maxLength": 1024 },
+        "dob": { "type": "string", "maxLength": 20 },
+        "age": { "type": "number" },
+        "gender": { "type": "string", "enum": ["male", "female", "rather_not_say"] },
+        "goal": { "type": "string", "enum": ["manage_weight", "stay_fit", "manage_health_problem"] },
+        "sub_goal": { "type": "string", "enum": ["lose_weight", "gain_weight", "maintain_weight"] },
+        "health_conditions": { "type": "array" },
+        "health_description": { "type": "string", "maxLength": 2000 },
+        "biometrics": { "type": "object" },
+        "metrics": { "type": "object" },
+        "created_at": { "type": "string", "maxLength": 64 },
+        "updated_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "name"]
+    },
+    "FoodLog": {
+      "title": "FoodLog",
+      "description": "Logged meal with nutritional macros and vision analysis",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "user_id": { "type": "string", "maxLength": 128 },
+        "meal_name": { "type": "string", "maxLength": 200 },
+        "calories": { "type": "number" },
+        "protein_g": { "type": "number" },
+        "carbs_g": { "type": "number" },
+        "fats_g": { "type": "number" },
+        "consumed_at": { "type": "string", "maxLength": 64 },
+        "confidence_score": { "type": "number" },
+        "portion_grams": { "type": "number" },
+        "image_url": { "type": "string", "maxLength": 1024 },
+        "key_micros": { "type": "object" },
+        "dietary_notes": { "type": "array" },
+        "components": { "type": "array" },
+        "health_compatibility": { "type": "object" },
+        "created_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "meal_name", "calories"]
+    },
+    "WaterLog": {
+      "title": "WaterLog",
+      "description": "Daily hydration tracking",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "maxLength": 20 },
+        "amount_ml": { "type": "number" },
+        "updated_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["date", "amount_ml"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile with demographic and metabolic info"
+    },
+    "/users/{userId}/foodLogs/{logId}": {
+      "schema": "FoodLog",
+      "description": "Food intake items logged by the user"
+    },
+    "/users/{userId}/waterLogs/{date}": {
+      "schema": "WaterLog",
+      "description": "Daily water consumption logs"
+    }
+  }
+}
